@@ -1,0 +1,21 @@
+{
+    "name": "nhentai",
+    "icon": "https://static.nhentai.net/img/logo.090da3be7b51.svg",
+    "url": "https://nhentai.net/",
+    "index": "index.js",
+    "book": "book.js",
+    "chapter": "chapter.js",
+    "search": {
+        "src": "search.js",
+        "data": {
+            "url": "https://nhentai.net/search/?q={0}&page={1}}"
+        }
+    },
+    "categories": [
+        {
+            "title": "主頁",
+            "id": "home",
+            "url": "https://nhentai.net/?page={0}"
+        }
+    ]
+}
