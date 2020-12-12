@@ -45,8 +45,12 @@ class BookCollection extends glib.Collection {
             }
             info_data.picture = doc.querySelector('#cover img').attr('data-src');
             let titles = doc.querySelectorAll('#info > .title');
-            info_data.title = titles[0].text
-            info_data.subtitle = titles[1].text;
+            try {
+                info_data.title = titles[0].text
+                info_data.subtitle = titles[1].text;
+            } catch (e) {
+                
+            }
             let tags = doc.querySelectorAll('#tags .tag-container:not(.hidden)');
             let dataTags = [];
             for (let i = 0, t = tags.length; i < t; ++i) {
