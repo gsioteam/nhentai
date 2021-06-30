@@ -3,8 +3,10 @@
     "icon": "https://static.nhentai.net/img/logo.090da3be7b51.svg",
     "url": "https://nhentai.net/",
     "index": "index.js",
-    "book": "book.js",
-    "chapter": "chapter.js",
+    "collections": [
+        "book.js",
+        "chapter.js"
+    ],
     "search": {
         "src": "search.js",
         "data": {

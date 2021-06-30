@@ -36,7 +36,7 @@ class HomeCollection extends Collection {
                 if (title.length > 20) {
                     title = title.substr(0, 20) + '...';
                 }
-                item.type = glib.DataItem.Type.Book;
+                item.type = glib.DataItem.Type.Data;
                 item.title = title;
                 item.subtitle = subtitle;
                 item.link = purl.href(book_elem.getAttribute('href'));

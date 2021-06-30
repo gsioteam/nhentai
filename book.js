@@ -37,7 +37,7 @@ class BookCollection extends glib.Collection {
             let imgs = doc.querySelectorAll("#thumbnail-container a.gallerythumb > img");
             let images = [];
             let item = glib.DataItem.new();
-            item.type = glib.DataItem.Type.Chapter;
+            item.type = glib.DataItem.Type.Data;
             item.link = this.url + '/1';
             for (let i = 0, t = imgs.length; i < t; i++) {
                 let el = imgs[i];
