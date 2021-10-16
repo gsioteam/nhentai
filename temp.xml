@@ -28,11 +28,13 @@
                 <Padding padding="all(5)">
                     <Row crossAxisAlignment="start">
                         <Padding padding="only(5,5,5,0)">
-                            <Image width="90" height="120" fit="cover" gaplessPlayback="true">
-                                <attr:image>
-                                    <CachedNetworkImageProvider>${infoData.picture}</CachedNetworkImageProvider>
-                                </attr:image>
-                            </Image>
+                            <Container width="90" height="120">
+                                <Image width="90" height="120" fit="cover" gaplessPlayback="true">
+                                    <attr:image>
+                                        <CachedNetworkImageProvider>${infoData.picture}</CachedNetworkImageProvider>
+                                    </attr:image>
+                                </Image>
+                            </Container>
                         </Padding>
                         <Expanded>
                             <Column crossAxisAlignment="start">
