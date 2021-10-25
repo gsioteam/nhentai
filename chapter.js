@@ -36,7 +36,10 @@ class ChapterCollection extends glib.Collection {
                     ctx.eval(script);
                 }
             }
-            let media_url = ctx.eval('window._reader.media_url');
+            let imgSrc = doc.querySelector('#image-container img').attr('src');
+            let imgUrl = new URL(imgSrc);
+             
+            let media_url = `${imgUrl.protocol}//${imgUrl.host}/`;
             let pages = ctx.eval('window._gallery.images.pages').toArray();
             let media_id = ctx.eval('window._gallery.media_id');
             let results = [];
