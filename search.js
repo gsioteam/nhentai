@@ -1,93 +1,174 @@
 
-const Collection = require('./collection');
+const baseURL = 'https://nhentai.net/search/?q={0}&page={1}';
 
-class SearchCollection extends Collection {
-    
-    constructor(data) {
-        super(data);
-        this.page = 0;
+class SearchController extends Controller {
+
+    load() {
+        let str = localStorage['hints'];
+        let hints = [];
+        if (str) {
+            let json = JSON.parse(str);
+            if (json.push) {
+                hints = json;
+            }
+        }
+        this.data = {
+            list: [],
+            focus: false,
+            hints: hints,
+            text: '',
+            loading: false,
+            hasMore: false,
+        };
     }
 
-    async fetch(url)  {
-        console.log("Start " + url);
-        let purl = new PageURL(url);
-        let doc = await super.fetch(url);
+    makeURL(word, page) {
+        return baseURL.replace('{0}', encodeURIComponent(word)).replace('{1}', page + 1);
+    }
+
+    onSearchClicked() {
+        this.findElement('input').submit();
+    } 
+
+    onTextChange(text) {
+        this.data.text = text;
+    }
+
+    async onTextSubmit(text) {
+        let hints = this.data.hints;
+        if (text.length > 0) {
+            if (hints.indexOf(text) < 0) {
+                this.setState(()=>{
+                    hints.unshift(text);
+                    while (hints.length > 30) {
+                        hints.pop();
+                    }
+    
+                    localStorage['hints'] = JSON.stringify(hints);
+                });
+            }
+            
+            this.setState(()=>{
+                this.data.loading = true;
+            });
+            try {
+                let list = await this.request(this.makeURL(text, 0));
+                this.key = text;
+                this.page = 0;
+                this.setState(()=>{
+                    this.data.list = list;
+                    this.data.loading = false;
+                });
+            } catch(e) {
+                showToast(`${e}\n${e.stack}`);
+                this.setState(()=>{
+                    this.data.loading = false;
+                });
+            }
+        }
+    }
+
+    onTextFocus() {
+        this.setState(()=>{
+            this.data.focus = true;
+        });
+    }
+
+    onTextBlur() {
+        this.setState(()=>{
+            this.data.focus = false;
+        });
+    }
+
+    async onPressed(index) {
+        await this.navigateTo('book', {
+            data: this.data.list[index]
+        });
+    }
+
+    onHintPressed(index) {
+        let hint = this.data.hints[index];
+        if (hint) {
+            this.setState(()=>{
+                this.data.text = hint;
+                this.findElement('input').blur();
+                this.onTextSubmit(hint);
+            });
+        }
+    }
+
+    async onRefresh() {
+        let text = this.key;
+        if (!text) return;
+        try {
+            let list = await this.request(this.makeURL(text, 0));
+            this.page = 0;
+            this.setState(()=>{
+                this.data.list = list;
+                this.data.loading = false;
+            });
+        } catch(e) {
+            showToast(`${e}\n${e.stack}`);
+            this.setState(()=>{
+                this.data.loading = false;
+            });
+        }
+    }
+
+    async onLoadMore() {
+        let page = this.page + 1;
+        try {
+            let list = await this.request(this.makeURL(this.key, page));
+            this.page = page;
+            this.setState(()=>{
+                for (let item of list) {
+                    this.data.list.push(item);
+                }
+                this.data.loading = false;
+            });
+        } catch(e) {
+            showToast(`${e}\n${e.stack}`);
+            this.setState(()=>{
+                this.data.loading = false;
+            });
+        }
+    }
+
+    async request(url) {
+        let res = await fetch(url);
+        let text = await res.text();
+        
+        let doc = HTMLParser.parse(text);
+
         let results = [];
         let containers = doc.querySelectorAll('.index-container');
         for (let container of containers) {
             let header = container.querySelector('h2');
             if (header) {
-                let head = glib.DataItem.new();
-                head.type = glib.DataItem.Type.Header;
-                head.picture = '/red-flag.png';
-                head.title = header.text.trim();
-                results.push(head);
+                results.push({
+                    header: true,
+                    title: header.text.trim(),
+                    picture: '/red-flag.png',
+                });
             }
 
             let books = container.querySelectorAll('.gallery > a');
             for (let book_elem of books) {
-                let item = glib.DataItem.new();
                 let title = book_elem.querySelector('.caption').text.trim();
                 let subtitle = title;
                 if (title.length > 20) {
                     title = title.substr(0, 20) + '...';
                 }
-                item.type = glib.DataItem.Type.Data;
-                item.title = title;
-                item.subtitle = subtitle;
-                item.link = purl.href(book_elem.getAttribute('href'));
-                item.picture = purl.href(book_elem.querySelector('img').getAttribute('data-src'));
-                results.push(item);
+                results.push({
+                    title,
+                    subtitle,
+                    link: new URL(book_elem.getAttribute('href'), url).toString(),
+                    picture: new URL(book_elem.querySelector('img').getAttribute('data-src'), url).toString(),
+                });
             }
         }
         return results;
     }
-
-    makeURL(key, page) {
-        let sort_type = this.getSetting('sort_type');
-        if (sort_type == null || sort_type == '') {
-            sort_type = 'recent';
-        }
-        let url = this.url.replace("{0}", glib.Encoder.urlEncode(key)).replace("{1}", page + 1);
-        if (sort_type != 'recent') {
-            url += '&sort=' + sort_type;
-        }
-        return url;
-    }
-
-    reload(data, cb) {
-        console.log("What?");
-        this.key = data.get("key") || this.key;
-        let page = data.get("page") || 0;
-        if (!this.key) return false;
-        this.fetch(this.makeURL(this.key, page)).then((results)=>{
-            this.page = page;
-            this.setData(results);
-            cb.apply(null);
-        }).catch(function(err) {
-            if (err instanceof Error) 
-                err = glib.Error.new(305, err.message);
-            cb.apply(err);
-        });
-        return true;
-    } 
-
-    loadMore(cb) {
-        let page = this.page + 1;
-        this.fetch(this.makeURL(this.key, page)).then((results)=>{
-            this.page = page;
-            this.appendData(results);
-            cb.apply(null);
-        }).catch(function(err) {
-            if (err instanceof Error) 
-                err = glib.Error.new(305, err.message);
-            cb.apply(err);
-        });
-        return true;
-    }
 }
 
-module.exports = function(data) {
-    console.log(data.toObject());
-    return SearchCollection.new(data ? data.toObject() : {});
-};
+module.exports = SearchController;
