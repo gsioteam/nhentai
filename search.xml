@@ -11,19 +11,11 @@
                 </button>
             </attr:actions>
 
-            <input autofocus="true" text="$text" id="input">
-                <attr:onChange>
-                    <callback function="onTextChange"/>
-                </attr:onChange>
-                <attr:onSubmit>
-                    <callback function="onTextSubmit"/>
-                </attr:onSubmit>
-                <attr:onFocus>
-                    <callback function="onTextFocus"/>
-                </attr:onFocus>
-                <attr:onBlur>
-                    <callback function="onTextBlur"/>
-                </attr:onBlur>
+            <input autofocus="true" text="$text" id="input" 
+            onChange="onTextChange" 
+            onSubmit="onTextSubmit" 
+            onFocus="onTextFocus" 
+            onBlur="onTextBlur">
             </input>
         </appbar>
     </attr:appbar>
