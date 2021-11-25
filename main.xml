@@ -14,7 +14,7 @@
                     set("item", ${list[args[1]]})
                 </script>
                 <if candidate="${item.header}">
-                    <list-item dense="true">
+                    <list-item dense="true" color="color(canvas)">
                         <if candidate="isNotNull(${item.picture})">
                             <attr:leading>
                                 <img src="${item.picture}" headers="${item.pictureHeaders}" width="24" height="24" fit="contain"/>
@@ -26,7 +26,7 @@
                     </list-item>
                 </if>
                 <else>
-                    <list-item>
+                    <list-item color="color(canvas)">
                         <attr:onTap>
                             <callback function="onPressed" args="array(${args[1]})"/>
                         </attr:onTap>
