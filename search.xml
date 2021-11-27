@@ -1,7 +1,7 @@
 
 <scaffold>
     <attr:appbar>
-        <appbar background="white" color="black87" brightness="light">
+        <appbar brightness="light">
             <attr:actions>
                 <button type="icon">
                     <icon>search</icon>
@@ -36,7 +36,7 @@
                             <script>
                                 set("item", ${list[args[1]]})
                             </script>
-                            <list-item color="white">
+                            <list-item color="color(canvas)">
                                 <attr:onTap>
                                     <callback function="onPressed" args="array(${args[1]})"/>
                                 </attr:onTap>
@@ -56,7 +56,7 @@
                     </attr:builder>
                 </list-view>
             </refresh>
-            <view color="white" height="switch($focus, null, 0.0)">
+            <view color="color(canvas)" height="switch($focus, null, 0.0)">
                 <list-view itemCount="length($hints)">
                     <attr:builder>
                         <Function returnType='Widget'>

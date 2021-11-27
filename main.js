@@ -66,7 +66,7 @@ class MainController extends Controller {
                     this.data.list.push(item);
                 }
                 this.data.loading = false;
-                this.data.hasMore = items.length >= PER_PAGE;
+                this.data.hasMore = items.length > 0;
             });
         } catch (e) {
             showToast(`${e}\n${e.stack}`);
@@ -102,7 +102,7 @@ class MainController extends Controller {
             this.setState(()=>{
                 this.data.list = items;
                 this.data.loading = false;
-                this.data.hasMore = this.id !== 'update' && items.length >= PER_PAGE;
+                this.data.hasMore = this.id !== 'update' && items.length > 0;
             });
         } catch (e) {
             showToast(`${e}\n${e.stack}`);
