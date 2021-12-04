@@ -65,6 +65,7 @@ class BookController extends Controller {
         } else {
             this.reload();
         }
+        FavoritesManager.clearNew(this.url);
     }
 
     unload() {
