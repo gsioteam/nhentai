@@ -1,4 +1,6 @@
 
+const fetch = require('./fetch_client');
+
 class BookController extends Controller {
 
     /**

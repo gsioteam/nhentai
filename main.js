@@ -1,4 +1,5 @@
 const baseURL = "https://nhentai.net/?page={0}";
+const fetch = require('./fetch_client');
 
 class MainController extends Controller {
 
@@ -49,7 +50,6 @@ class MainController extends Controller {
             this.data.loading = true;
         });
         try {
-
             let page = this.page + 1;
             let url = this.makeURL(page);
             let res = await fetch(url, {
@@ -87,6 +87,7 @@ class MainController extends Controller {
         });
         try {
             let url = this.makeURL(0);
+            console.log(url);
             let res = await fetch(url, {
                 headers: {
                     'User-Agent': this.userAgent,

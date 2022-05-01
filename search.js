@@ -1,5 +1,6 @@
 
 const baseURL = 'https://nhentai.net/search/?q={0}&page={1}';
+const fetch = require('./fetch_client');
 
 class SearchController extends Controller {
 

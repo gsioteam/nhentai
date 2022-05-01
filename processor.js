@@ -1,4 +1,5 @@
-const bookFetch = require('./book_fetch');
+// const bookFetch = require('./book_fetch');
+const fetch = require('./fetch_client');
 
 /**
  * @property {String}key need override the key for caching
@@ -83,16 +84,16 @@ class MangaProcesser extends Processor {
 
     // Check for new chapter
     async checkNew() {
-        let url = this.data.link + '?waring=1';
-        let data = await bookFetch(url);
-        var item = data.list[data.list.length - 1];
+        // let url = this.data.link + '?waring=1';
+        // let data = await bookFetch(url);
+        // var item = data.list[data.list.length - 1];
         /**
          * @property {String}title The last chapter title.
          * @property {String}key The unique identifier of last chpater.
          */
         return {
-            title: item.title,
-            key: item.link,
+            title: '',
+            key: '',
         };
     }
 }
