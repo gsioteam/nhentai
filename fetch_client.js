@@ -32,10 +32,13 @@ class FetchClient {
         return new Promise((resolve, reject) => {
             let webview = new HeadlessWebView();
             this.webview = webview;
+            let completed = false;
             webview.load(url);
             webview.onloadend = async () => {
+                if (completed) return;
                 let title = await webview.eval('document.title');
                 if (title.startsWith("nhentai:")) {
+                    completed = true;
                     let userAgent = await webview.eval('navigator.userAgent');
                     try {
                         let cookies = (await HeadlessWebView.getCookies(url)).toJSON();
@@ -49,16 +52,22 @@ class FetchClient {
                                 cookie: `cf_clearance=${cookies['cf_clearance'][0]}; csrftoken=${cookies['csrftoken'][0]}`,
                                 'user-agent': userAgent,
                             });
+                            return
                         }
                     } catch (e) {
                         console.log(e.message);
-                        resolve({
-                            'user-agent': userAgent,
-                        });
                     }
+                    resolve({
+                        'user-agent': userAgent,
+                    });
                 }
             };
-
+            setTimeout(function() {
+                if (!completed) {
+                    completed = true;
+                    reject(new Error('Timeout'));
+                }
+            }, 10000);
         });
     }
 }
