@@ -52,6 +52,9 @@ class FetchClient {
                                 cookie: `cf_clearance=${cookies['cf_clearance'][0]}; csrftoken=${cookies['csrftoken'][0]}`,
                                 'user-agent': userAgent,
                             });
+                            if (webview.display) {
+                                webview.display(false);
+                            }
                             return
                         }
                     } catch (e) {
@@ -62,12 +65,16 @@ class FetchClient {
                     });
                 }
             };
-            setTimeout(function() {
-                if (!completed) {
-                    completed = true;
-                    reject(new Error('Timeout'));
-                }
-            }, 10000);
+            if (webview.display) {
+                webview.display(true);
+            } else {
+                setTimeout(function() {
+                    if (!completed) {
+                        completed = true;
+                        reject(new Error('Timeout'));
+                    }
+                }, 10000);
+            }
         });
     }
 }
