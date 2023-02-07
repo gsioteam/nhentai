@@ -15,7 +15,7 @@ class FetchClient {
                 headers: headers,
             });
         } catch (e) {
-            if (e.message.match(/http status/i) && e.message.indexOf('503') > 0) {
+            if (e.message.match(/http status/i) && e.message.indexOf('403') > 0) {
                 headers = await this._getHeaders(url);
                 localStorage.setItem('headers', JSON.stringify(headers));
                 res = await fetch(url, {
