@@ -112,7 +112,7 @@ class BookController extends Controller {
         let imgs = doc.querySelectorAll("#thumbnail-container a.gallerythumb > img");
         let images = [];
         let item = {
-            link: this.url + '/1'
+            link: this.url + (this.url[this.url.length - 1] !== '/' ? '/1/' : '1/')
         };
         for (let i = 0, t = imgs.length; i < t; i++) {
             let el = imgs[i];

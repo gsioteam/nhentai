@@ -55,9 +55,8 @@ class MangaProcesser extends Processor {
                 case 'g': ext = 'gif'; break;
                 default: ext = 'jpg'; break;
             }
-            console.log("type " + page.t + " ext " + ext);
             results.push({
-                url: media_url + 'galleries/' + media_id + '/' + (i + 1) + '.' + ext
+                url: media_url + 'galleries/' + media_id + '/' + (i + 1) + '.' + ext,
             });
         }
         this.setData(results);
