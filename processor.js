@@ -53,6 +53,7 @@ class MangaProcesser extends Processor {
                 case 'j': ext = 'jpg'; break;
                 case 'p': ext = 'png'; break;
                 case 'g': ext = 'gif'; break;
+                case 'w': ext = 'webp'; break;
                 default: ext = 'jpg'; break;
             }
             results.push({
