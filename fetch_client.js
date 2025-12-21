@@ -1,85 +1,70 @@
 
-class FetchClient {
-    async fetch(url) {
-        let headers = localStorage.getItem('headers');
-        if (typeof headers === 'string') {
-            headers = JSON.parse(headers);
-        }
-        if (!headers) {
-            headers = await this._getHeaders(url);
-            localStorage.setItem('headers', JSON.stringify(headers));
-        }
-        let res;
-        try {
-            res = await fetch(url, {
-                headers: headers,
-            });
-        } catch (e) {
-            if (e.message.match(/http status/i) && e.message.indexOf('403') > 0) {
-                headers = await this._getHeaders(url);
-                localStorage.setItem('headers', JSON.stringify(headers));
-                res = await fetch(url, {
-                    headers: headers,
-                });
-            } else {
-                throw e;
-            }
-        }
-        return res;
+class FetchResponse {
+    constructor(data) {
+        data = data.toJSON()
+        this.data = data
+        this.status = data.status
     }
-
-    _getHeaders(url) {
-        return new Promise((resolve, reject) => {
-            let webview = new HeadlessWebView();
-            this.webview = webview;
-            let completed = false;
-            webview.load(url);
-            webview.onloadend = async () => {
-                if (completed) return;
-                let title = await webview.eval('document.title');
-                if (title.startsWith("nhentai:")) {
-                    completed = true;
-                    let userAgent = await webview.eval('navigator.userAgent');
-                    try {
-                        let cookies = (await HeadlessWebView.getCookies(url)).toJSON();
-                        let obj = {};
-                        for (let key in cookies) {
-                            obj[key.trim()] = cookies[key];
-                        }
-                        cookies = obj;
-                        if (cookies.cf_clearance[0] && cookies.csrftoken[0]) {
-                            resolve({
-                                cookie: `cf_clearance=${cookies['cf_clearance'][0]}; csrftoken=${cookies['csrftoken'][0]}`,
-                                'user-agent': userAgent,
-                            });
-                            if (webview.display) {
-                                webview.display(false);
-                            }
-                            return
-                        }
-                    } catch (e) {
-                        console.log(e.message);
-                    }
-                    resolve({
-                        'user-agent': userAgent,
-                    });
-                }
-            };
-            if (webview.display) {
-                webview.display(true);
-            } else {
-                setTimeout(function() {
-                    if (!completed) {
-                        completed = true;
-                        reject(new Error('Timeout'));
-                    }
-                }, 10000);
-            }
-        });
+    
+    text() {
+        return this.data.text
     }
 }
 
-module.exports = async function (url) {
-    let client = new FetchClient();
-    return await client.fetch(url);
-};
+class FetchClient {
+    constructor() {
+        this.webview = new HeadlessWebView();
+    }
+
+    async _fetch(url) {
+        return new Promise(async (resolve, reject) => {
+            let tiemr = setTimeout(() => {
+                reject(new Error('Timeout'));
+            }, 10000)
+            let res = new FetchResponse(await this.webview.request(url));
+            clearTimeout(tiemr)
+            resolve(res)
+        })
+    }
+
+    async fetch(url) {
+        var response = await this._fetch(url);
+        
+        if (response.status >= 300) {
+            await this._processCloudflare(url);
+            return this._fetch(url)
+        }
+        return response;
+    }
+
+    _processCloudflare(url) {
+        return new Promise((resolve, reject) => {
+            let completed = false;
+            this.webview.load(url);
+            let timer = setTimeout(() => {
+                this.webview.onloadend = null
+                completed = true;
+                reject(new Error('Timeout'));
+            }, 30000);
+            this.webview.onloadend = async () => {
+                if (completed) return;
+                let title = await this.webview.eval('document.title');
+                if (title.startsWith("nhentai:")) {
+                    this.webview.onloadend = null
+                    this.webview.display(false);
+                    resolve({
+                        'user-agent': userAgent,
+                    });
+                    clearTimeout(timer)
+                }
+            };
+            if (this.webview.display) {
+                this.webview.display(true);
+            }
+        });
+    }
+
+    
+}
+
+module.exports = FetchClient;

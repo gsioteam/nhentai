@@ -1,5 +1,6 @@
 // const bookFetch = require('./book_fetch');
-const fetch = require('./fetch_client');
+const FetchClient = require('./fetch_client');
+const utils = require('./utils');
 
 /**
  * @property {String}key need override the key for caching
@@ -21,9 +22,10 @@ class MangaProcesser extends Processor {
      */
     async load(state) {
         let url = this.data.link;
+        this.client = new FetchClient()
 
-        async function request(url)  {
-            let res = await fetch(url);
+        let request = async (url) =>  {
+            let res = await this.client.fetch(url);
             let text = await res.text();
             return HTMLParser.parse(text);
         }
@@ -39,7 +41,7 @@ class MangaProcesser extends Processor {
                 ctx.eval(script);
             }
         }
-        let imgSrc = doc.querySelector('#image-container img').getAttribute('src');
+        let imgSrc = utils.completeProtocol(doc.querySelector('#image-container img').getAttribute('src'), url);
         let imgUrl = new URL(imgSrc);
             
         let media_url = `${imgUrl.protocol}//${imgUrl.host}/`;
@@ -66,7 +68,7 @@ class MangaProcesser extends Processor {
     }
 
     async fetch(url) {
-        let res = await fetch(url, {
+        let res = await this.client.fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36',
             }

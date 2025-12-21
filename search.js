@@ -1,6 +1,6 @@
 
 const baseURL = 'https://nhentai.net/search/?q={0}&page={1}';
-const fetch = require('./fetch_client');
+const FetchClient = require('./fetch_client');
 
 class SearchController extends Controller {
 
@@ -13,6 +13,7 @@ class SearchController extends Controller {
                 hints = json;
             }
         }
+        this.client = new FetchClient()
         this.data = {
             list: [],
             focus: false,
@@ -145,7 +146,7 @@ class SearchController extends Controller {
     }
 
     async request(url) {
-        let res = await fetch(url);
+        let res = await this.client.fetch(url);
         let text = await res.text();
         
         let doc = HTMLParser.parse(text);

@@ -1,5 +1,5 @@
 const baseURL = "https://nhentai.net/?page={0}";
-const fetch = require('./fetch_client');
+const FetchClient = require('./fetch_client');
 
 class MainController extends Controller {
 
@@ -7,6 +7,7 @@ class MainController extends Controller {
         this.id = data.id;
         this.url = baseURL;
         this.page = 0;
+        this.client = new FetchClient()
 
         var cached = this.readCache();
         let list;
@@ -52,7 +53,7 @@ class MainController extends Controller {
         try {
             let page = this.page + 1;
             let url = this.makeURL(page);
-            let res = await fetch(url, {
+            let res = await this.client.fetch(url, {
                 headers: {
                     'User-Agent': this.userAgent,
                 },
@@ -88,7 +89,7 @@ class MainController extends Controller {
         try {
             let url = this.makeURL(0);
             console.log(url);
-            let res = await fetch(url, {
+            let res = await this.client.fetch(url, {
                 headers: {
                     'User-Agent': this.userAgent,
                 }

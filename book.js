@@ -1,5 +1,6 @@
 
-const fetch = require('./fetch_client');
+const FetchClient = require('./fetch_client');
+const Utils = require('./utils')
 
 class BookController extends Controller {
 
@@ -42,6 +43,7 @@ class BookController extends Controller {
             images: [],
         };
         this.selected = [];
+        this.client = new FetchClient()
 
         this.url = data.link;
         
@@ -84,7 +86,7 @@ class BookController extends Controller {
         });
         try {
             let url = this.url + '?waring=1';
-            let res = await fetch(url);
+            let res = await this.client.fetch(url);
             let text = await res.text();
             let data = this.parseData(text);
     
@@ -116,9 +118,10 @@ class BookController extends Controller {
         };
         for (let i = 0, t = imgs.length; i < t; i++) {
             let el = imgs[i];
-            images.push(el.getAttribute('data-src'));
+            images.push(Utils.completeProtocol(el.getAttribute('data-src'), url));
         }
-        let picture = doc.querySelector('#cover img').getAttribute('data-src');
+        console.log(`Images ${images}`);
+        let picture = Utils.completeProtocol(doc.querySelector('#cover img').getAttribute('data-src'), url);
         let titles = doc.querySelectorAll('#info > .title');
         let title, subtitle;
         try {
